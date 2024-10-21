@@ -56,6 +56,11 @@ def delete_expense(expenses, expense_id):
             return True
     return False
 
+def update_id(expenses, expense_id):
+    for i, expense in enumerate(expenses):
+        if expense['id'] > expense_id:
+            expense['id'] = expense['id'] - 1
+
 def list_expenses(expenses):
     print('ID  Date       Description          Amount')
     for expense in expenses:
@@ -79,13 +84,13 @@ def main():
 
     # Подкоманда 'update'
     update_parser = subparsers.add_parser('update', help='Update an existing expense')
-    update_parser.add_argument('expense_id', type=int, help='ID of the expense to update')
+    update_parser.add_argument('--expense_id', type=int, help='ID of the expense to update')
     update_parser.add_argument('--description', type=str, help='New description of the expense')
     update_parser.add_argument('--amount', type=float, help='New amount of the expense')
 
     # Подкоманда 'delete'
     delete_parser = subparsers.add_parser('delete', help='Delete an expense')
-    delete_parser.add_argument('expense_id', type=int, help='ID of the expense to delete')
+    delete_parser.add_argument('--expense_id', type=int, help='ID of the expense to delete')
 
     # Подкоманда 'list'
     subparsers.add_parser('list', help='List all expenses')
@@ -113,6 +118,7 @@ def main():
     elif args.command == 'delete':
         expense_id = args.expense_id
         if delete_expense(expenses, expense_id):
+            update_id(expenses, expense_id)
             save_expenses(filename, expenses)
             print(f"Expense {expense_id} deleted successfully.")
         else:
@@ -122,10 +128,11 @@ def main():
         list_expenses(expenses)
 
     elif args.command == 'summary':
+        months = {1: 'January', 2: 'Fabruary', 3: 'March', 4: 'April', 5: 'May', 6: 'June', 7: 'July', 8: 'August', 9: 'September', 10: 'October', 11: 'November', 12: 'December'}
         month = args.month
         total = summary_expenses(expenses, month)
         if month:
-            print(f'Total expenses for month {month}: ${total:,.2f}')
+            print(f'Total expenses for month {months.get(month)}: ${total:,.2f}')
         else:
             print(f'Total expenses: ${total:,.2f}')
 
